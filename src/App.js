@@ -96,7 +96,7 @@ class App extends React.Component {
 			<Router>
 				<div className="App" ref={el => (this.instance = el)}>
 					<Switch>
-						<Route exact path="/" render={(props) => <Login {...props} handleAuthClick={this.handleAuthClick} getSubs={this.getSubs} />} />
+						<Route exact path="/" render={(props) => <Login {...props} handleAuthClick={this.handleAuthClick}/>} />
 
 						<Route path="/dashboard" component={Dashboard} />
 					</Switch>
