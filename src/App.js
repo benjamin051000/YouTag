@@ -2,6 +2,7 @@ import React from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import './App.css';
+import API_KEYS from './api_keys.json';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -38,8 +39,8 @@ class App extends React.Component {
 
 		// Initialize gapi.client
 		window.gapi.client.init({
-			'apiKey': 'AIzaSyAW-UGcXN8-v8qbu9NpUmnsELBNs5Kp0T4',
-			'clientId': '15399846948-gut7ja6158h95pesfn8il1dej16rh519.apps.googleusercontent.com',
+			'apiKey': API_KEYS.apiKey,
+			'clientId': API_KEYS.clientId,
 			'discoveryDocs': [discoveryURL],
 			'scope': SCOPE
 		}).then(
