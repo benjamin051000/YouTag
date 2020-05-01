@@ -29,9 +29,11 @@ class App extends React.Component {
         const googleScript = document.createElement('script');
 
         googleScript.src = 'https://apis.google.com/js/api.js';
-        googleScript.async = true; // TODO is this necessary?
+        // googleScript.async = true; // TODO is this necessary?
+        googleScript.onload = () => this.handleClientLoad();
 
         this.instance.appendChild(googleScript);
+
     }
 
 
@@ -117,16 +119,12 @@ class App extends React.Component {
 
                         <p>Sign in with your Google account to get started.</p>
 
-
-                        <button onClick={this.handleClientLoad}>Init auth</button>
-
-                        <br />
-
                         <button onClick={this.handleAuthClick}>Sign in with Google</button>
+
+                        {/* TODO see https://developers.google.com/identity/branding-guidelines for CSS guidelines */}
 
                         <br />
                         {/* <button onClick={() => this.setState({ loggedIn: true })}>Skip login</button> */}
-                        {/* <br/> */}
 
                         <button onClick={this.getSubs}>Fetch subscriptions</button>
 
