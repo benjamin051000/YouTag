@@ -29,7 +29,7 @@ class Login extends React.Component {
 
                         {/* TODO see https://developers.google.com/identity/branding-guidelines for CSS guidelines */}
 
-                        <button onClick={() => this.setState({ loggedIn: true })}>Skip login</button>
+                        <button onClick={() => this.setState({ loggedIn: true })}>Dashboard</button>
                     </header>
                 </div>
             );
