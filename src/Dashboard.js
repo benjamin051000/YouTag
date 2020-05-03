@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import topicIDs from './topicIds.json';
 
 async function getSubs(pageToken) {
     let response = await window.gapi.client.youtube.subscriptions.list({
@@ -41,6 +42,39 @@ async function getAllSubs() {
     return subs;
 }
 
+function getChannelIDs(dsubs) {
+    return dsubs.map(channel => channel.snippet.resourceId.channelId);
+}
+
+async function getTopics(dsubs) {
+    /* gets topics, duh */
+
+    let ids = getChannelIDs(dsubs); 
+    console.log('ids:', ids);
+
+    let channelInfo = [];
+
+    for(let i = 0; i < dsubs.length; i += 50) {
+
+        let idlist = ids.slice(i, i+50).join();  // Default delimiter is a comma. slice()  handles out of bounds and just returns up until the end.
+        console.log(`Fetching data for ${i}-${i+50}...`);
+
+        let response = await window.gapi.client.youtube.channels.list({
+            'part': 'topicDetails',
+            'id': idlist  
+        });
+
+        let result = response.result;
+        
+        console.log('Resulting channel info:', result);
+        channelInfo = channelInfo.concat(result.items); // TODO make this entire loop async so it can fetch all at once
+    }
+
+    console.log('Received channel info:', channelInfo);
+    return channelInfo;
+}
+
+
 function Dashboard() {
 
     const [dsubs, updateSubs] = useState([]);
@@ -51,12 +85,14 @@ function Dashboard() {
 
             <button onClick={async () => updateSubs(await getAllSubs())}>Fetch subscriptions</button>
 
+            <button onClick={async () => await getTopics(dsubs)}>Fetch Channel Topics</button>
+
             
                 <ol>
                     {
                         dsubs.length > 1 &&
                         dsubs.map(s => <li key={s.snippet.title}>{s.snippet.title}
-                        <img src={s.snippet.thumbnails.default.url}/>
+                        <img src={s.snippet.thumbnails.default.url} alt='Channel thumbnail'/>
                         </li>)
                     }
                 </ol>
