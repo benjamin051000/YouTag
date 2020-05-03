@@ -79,19 +79,6 @@ class App extends React.Component {
 		}
 	}
 
-	getSubs() {
-		window.gapi.client.youtube.subscriptions.list({
-			'part': 'snippet',
-			// 'maxResults': 50,  // Ensure this works if user has <50 subs
-			'mine': true
-		})
-			.then(function (response) {
-				// Handle the results here (response.result has the parsed body).
-				console.log("Response", response);
-			},
-				function (err) { console.error("Execute error", err); });
-	}
-
 	render() {
 		return (
 			<Router>
