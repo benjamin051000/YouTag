@@ -184,13 +184,14 @@ function Dashboard() {
             <ul>
                 {   // Displays when prettyCats is up
                     prettyInfo.length > 0 &&
+                    
                     prettyInfo.map(e => (
                         <li key={e[0]}><h3>{e[0]} ({e.length - 1} channels)</h3>
                             <ol>
                                 {
                                     e.map((i, idx) => {
                                         if (idx >= 1) return (
-                                            <li key={i + idx}><span>{i}</span></li>
+                                            <li key={i + idx}>{i}</li>
                                         )
                                         else return null
                                     })
