@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import jsonIDs from './topicIds.json';
+import jsonIDs from './topicIds.json';  // Used to convert between topicIDs and human-readable topics.
+
 
 async function getSubs(pageToken) {
+    /* Fetch subscription list from the authenticated user in batches of 50. pageToken is optional. */
     let response = await window.gapi.client.youtube.subscriptions.list({
         'part': 'snippet',
         'maxResults': 50,  // This takes a little bit
@@ -11,198 +13,196 @@ async function getSubs(pageToken) {
     return response.result;
 }
 
-async function getAllSubs() {
-    /* Get all user subscriptions. */
-    let subs = [];
-    let firstIteration = true; // Ensures it'll run once
-    let subListResponse = null;
 
-    // Check for a nextPageToken
+async function getAllSubs() {
+    /* Fetch all user subscriptions. GAPI only allows fetching of 50 subscriptions at a time, but has pagination. This allows us to loop through each new page until we exhaust all subscriptions. */
+
+    let firstIteration = true; // Ensures loop will run once
+    let subListResponse = null;
+    let subs = [];
+
+    // Keep looping while the responses have a nextPageToken.
     while (firstIteration || subListResponse.nextPageToken) {
 
-        // Get results
         if (firstIteration)
             subListResponse = await getSubs(null);
-        else {
-            console.log('Getting results for page', subListResponse.nextPageToken);
+        else
             subListResponse = await getSubs(subListResponse.nextPageToken);
-        }
-        // TODO ensure valid result?
 
-        console.log(subListResponse);
 
-        // Add the subscriptions to the list
+        console.log('subListResponse:', subListResponse);
+        // Add the new page of subscriptions to the total list.
         subs = subs.concat(subListResponse.items);
 
         firstIteration = false;
     }
 
-    console.log(subs);
+    console.log('Subscription list:', subs);
 
     return subs;
 }
 
-function getChannelIDs(dsubs) {
-    return dsubs.map(channel => channel.snippet.resourceId.channelId);
-}
 
-async function getTopics(dsubs) {
-    /* gets topics, duh */
+async function getTopics(subInfo) {
+    /* Fetch the topicDetails for each Channel in subInfo and add it into the subInfo object. */
 
-    let ids = getChannelIDs(dsubs); 
-    console.log('ids:', ids);
+    let channelIDs = subInfo.map(channel => channel.snippet.resourceId.channelId);
 
     let channelInfo = [];
 
-    for(let i = 0; i < dsubs.length; i += 50) {
+    for (let i = 0; i < subInfo.length; i += 50) {
 
-        let idlist = ids.slice(i, i+50).join();  // Default delimiter is a comma. slice()  handles out of bounds and just returns up until the end.
-        console.log(`Fetching data for ${i}-${i+50}...`);
+        let idlist = channelIDs.slice(i, i + 50).join();  // Default delimiter is a comma. slice()  handles out of bounds: Returns up until the end. Slice does not include i+50.
+        console.log(`Fetching topicDetails for subInfo[${i}-${i + 50}]...`);
 
         let response = await window.gapi.client.youtube.channels.list({
             'part': 'topicDetails',
-            'id': idlist  
+            'id': idlist
         });
 
         let result = response.result;
-        
-        console.log('Resulting channel info:', result);
-        channelInfo = channelInfo.concat(result.items); // TODO make this entire loop async so it can fetch all at once
+
+        console.log('Resulting topicDetails:', result);
+
+        channelInfo = channelInfo.concat(result.items);
     }
 
     console.log('Received channel info:', channelInfo);
 
     // For each dsub, add its topicDetails if they are defined for that channel.
-    for(let i = 0; i < dsubs.length; i++) {
-        let channelId = dsubs[i].snippet.resourceId.channelId;
+    for (let i = 0; i < subInfo.length; i++) {
+        let channelId = subInfo[i].snippet.resourceId.channelId;
 
-        for(let j = 0; j < channelInfo.length; j++) {
-            if(channelInfo[j].id === channelId) {
-                dsubs[i].topicDetails = channelInfo[j];
+        for (let j = 0; j < channelInfo.length; j++) {
+            if (channelInfo[j].id === channelId) {
+                subInfo[i].topicDetails = channelInfo[j];
                 break; // Move on to next iteration of dsubs
             }
         }
     }
 
     // Alert if any subs do not have topicDetails assigned to them
-    for(let channel of dsubs) {
-        if(!channel.topicDetails)
+    for (let channel of subInfo) {
+        if (!channel.topicDetails)
             console.log('This channel does not have any topics defined:', channel);
     }
 
-    console.log('new dsubs:', dsubs);
-    return dsubs;
+    console.log('New subInfo with topicDetails:', subInfo);
+    return subInfo;
 }
 
-function sortSubs(subs) {
-    // Sorts the subs into a dictionary.
+
+function sortSubs(subInfo) {
+    /* Places subscriptions into a dictionary with topics as keys and arrays of channels as values. */
     let categories = {};
 
-    console.log('sorting', subs);
-
     // For each subscription, iterate through each topic and add it to a topic.
-    for(let s of subs) {
+    for (let sub of subInfo) {
 
-        if(s.topicDetails && s.topicDetails.topicDetails) {
+        // Check that topicDetails exists.
+        if (sub.topicDetails && sub.topicDetails.topicDetails) {
 
-            for(let topic of s.topicDetails.topicDetails.topicIds) {
-                
+            // Iterate through each topic.
+            for (let topic of sub.topicDetails.topicDetails.topicIds) {
+
                 // If the key-val pair already exists, push it if it hasn't been pushed already.
-                if(categories[topic]) {
+                if (categories[topic]) {
                     /* Check if the element is already here. This is necessary because some topicID lists for channels include the same topicID twice. */
-                    if(!categories[topic].find(e => e === s))
-                        categories[topic].push(s);
+                    if (!categories[topic].find(e => e === sub))
+                        categories[topic].push(sub);
                 }
                 else {
-                    categories[topic] = [s];
+                    // Otherwise, create a new array starting with this subscription.
+                    categories[topic] = [sub];
                 }
             }
         }
+        // If sub.topicDetails does not exist, add the sub to 'unfiled'
         else {
-            // If s.topicDetails does not exist, add it under 'unfiled'
-            if(categories['unfiled']) {
-                categories['unfiled'].push(s);
+            if (categories['unfiled']) {
+                categories['unfiled'].push(sub);
             }
             else {
-                categories['unfiled'] = [s];
+                categories['unfiled'] = [sub];
             }
         }
     }
 
-    console.log(categories);
+    console.log('Resulting categories:', categories);
     return categories;
 }
 
-function formatCategoryNames(categories) {
-    /* Format subscriptions to be rendered in the DOM. */ 
 
-    let output = [];
+function prettifyCats(categories) {
+    /* Format channel info to be rendered in the DOM. */
+    let pretty = [];
 
-    for(let key in categories) {
-        if(categories.hasOwnProperty(key)) {  // TODO is this necessary?
-            let cat = [jsonIDs[key]];  // Category name is in the front.
-            for(let sub of categories[key]) {
+    for (let key in categories) {
+        if (categories.hasOwnProperty(key)) {  // TODO is this necessary?
+            let cat = key === 'unfiled' ? ['unfiled'] : [jsonIDs[key]];  // Category name is in the front.
+            for (let sub of categories[key]) {
                 cat.push(sub.snippet.title);
             }
-            output.push(cat);
+            // Push the entire list of Channel titles to the output list.
+            pretty.push(cat);
         }
     }
-    return output;
+    return pretty;
 }
 
+
+async function handleFetch() {
+    /* Handles the functions required to fetch the subscription information and the channel topic information at once. */
+    let subInfo = await getAllSubs();
+    subInfo = await getTopics(subInfo);
+    return subInfo;
+}
+
+
+function handleDisplay(subInfo) {
+    /* Handles category sorting and DOM rendering of Channels. */
+    let sorted = sortSubs(subInfo);
+    let pretty = prettifyCats(sorted);
+    return pretty;
+}
+
+
 function Dashboard() {
+    /* Component declaration */
 
-    const [subs, updateSubs] = useState([]);
-    const [categories, setCategories] = useState({});
-    const [prettyCats, setPretty] = useState([]);
-
+    const [subInfo, updateSubInfo] = useState([]);
+    const [prettyInfo, setPretty] = useState([]);
 
     return (
         <div>
             <h1>Dashboard</h1>
 
-            <button onClick={async () => updateSubs(await getAllSubs())}>Fetch subscriptions</button>
+            <button onClick={async () => updateSubInfo(await handleFetch())}>Fetch Subscription info</button>
 
-            <button onClick={async () => {
-                updateSubs(await getTopics(subs));
-            }}>Fetch Channel Topics</button>
+            <button onClick={() => setPretty(handleDisplay(subInfo))}>Sort and display data</button>
 
-            <button onClick={() => setCategories(sortSubs(subs))}>Sort channels by topic</button>
-
-            <button onClick={() => setPretty(formatCategoryNames(categories))}>Display categories</button> {/* TODO save this to a state and do something similar to the below HTML insertion */}
-
-            
-                {/* <ol>
-                    {
-                        subs.length > 1 &&
-                        subs.map(s => <li key={s.snippet.title}>{s.snippet.title},
-                        <img src={s.snippet.thumbnails.default.url} alt='Channel thumbnail'/>
-                        </li>)
-                    }
-                </ol> */}
-
-                <ul>
-                    {
-                        prettyCats.length > 0 &&
-                        prettyCats.map(e =>
-                            // First one is a ul
-                        <li key={e[0]}><h3>{e[0]} ({e.length-1} channels)</h3>
-                                <ol>
+            <ul>
+                {   // Displays when prettyCats is up
+                    prettyInfo.length > 0 &&
+                    prettyInfo.map(e => (
+                        <li key={e[0]}><h3>{e[0]} ({e.length - 1} channels)</h3>
+                            <ol>
                                 {
                                     e.map((i, idx) => {
-                                        if(idx >= 1) return (
-                                            <li key={i+idx}><span>{i}</span></li>
+                                        if (idx >= 1) return (
+                                            <li key={i + idx}><span>{i}</span></li>
                                         )
+                                        else return null
                                     })
                                 }
-                                </ol>
-                            </li>)
-                    }
-                </ul>
-            
-
+                            </ol>
+                        </li>)
+                    )
+                }
+            </ul>
         </div>
     );
 }
+
 
 export default Dashboard;
