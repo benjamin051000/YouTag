@@ -167,7 +167,7 @@ function handleDisplay(subInfo) {
 }
 
 
-function Dashboard() {
+function Dashboard(props) {
     /* Component declaration */
 
     const [subInfo, updateSubInfo] = useState([]);
@@ -180,6 +180,8 @@ function Dashboard() {
             <button onClick={async () => updateSubInfo(await handleFetch())}>Fetch Subscription info</button>
 
             <button onClick={() => setPretty(handleDisplay(subInfo))}>Sort and display data</button>
+
+            <button onClick={props.handleAuthClick}>Logout</button>
 
             <ul>
                 {   // Displays when prettyCats is up

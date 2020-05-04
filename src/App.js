@@ -4,7 +4,7 @@ import Dashboard from './Dashboard';
 import './App.css';
 import API_KEYS from './api_keys.json';
 
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
 const SCOPE = 'https://www.googleapis.com/auth/youtube.force-ssl';
 
@@ -13,6 +13,8 @@ class App extends React.Component {
 
 	constructor(props) {
 		super(props);
+
+		this.state = {isSignedIn: false};
 
 		this.GoogleAuth = null;
 		this.initClient = this.initClient.bind(this);
@@ -25,13 +27,9 @@ class App extends React.Component {
 
 		googleScript.src = 'https://apis.google.com/js/api.js';
 		googleScript.async = true;
-		googleScript.onload = () => this.handleClientLoad();
+		googleScript.onload = () => window.gapi.load('client:auth2', this.initClient);
 
 		this.instance.appendChild(googleScript);
-	}
-
-	handleClientLoad() {
-		window.gapi.load('client:auth2', this.initClient);
 	}
 
 	initClient() {
@@ -51,7 +49,6 @@ class App extends React.Component {
 				this.GoogleAuth.isSignedIn.listen(this.setSigninStatus);
 
 				// Handle initial sign-in state
-				// let user = this.GoogleAuth.currentUser.get(); // What is this for?
 				this.setSigninStatus();
 			}
 		);
@@ -63,10 +60,11 @@ class App extends React.Component {
 
 		if (isAuthorized) {
 			console.log('You\'re signed in!');
-			// this.setState({loggedIn: true});
+			this.setState({isSignedIn: true});
 		}
 		else {
-			console.log('You are signed out.')
+			console.log('You are signed out.');
+			this.setState({isSignedIn: false});
 		}
 	}
 
@@ -86,8 +84,15 @@ class App extends React.Component {
 					<Switch>
 						<Route exact path="/" render={(props) => <Login {...props} handleAuthClick={this.handleAuthClick}/>} />
 
-						<Route path="/dashboard" component={Dashboard} />
+						<Route path="/dashboard" render={(props) => <Dashboard {...props} handleAuthClick={this.handleAuthClick}/>} />
 					</Switch>
+
+					{
+						this.state.isSignedIn && <Redirect to='/dashboard'/>
+					}
+					{
+						!this.state.isSignedIn && <Redirect to='/' />
+					}
 				</div>
 			</Router>
 		)
