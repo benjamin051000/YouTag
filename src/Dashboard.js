@@ -186,7 +186,7 @@ function Dashboard() {
                         prettyCats.length > 0 &&
                         prettyCats.map(e =>
                             // First one is a ul
-                        <li key={e[0]}><h3>{e[0]} ({e.length-1} videos)</h3>
+                        <li key={e[0]}><h3>{e[0]} ({e.length-1} channels)</h3>
                                 <ol>
                                 {
                                     e.map((i, idx) => {
