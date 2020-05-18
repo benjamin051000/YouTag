@@ -175,19 +175,10 @@ function Dashboard(props) {
     return (
         <div>
             <h1>Dashboard</h1>
-            <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
-            
-            {   subInfo.length > 0 && // Displays when prettyCats is up
-                
-                subInfo.map(e => (
-                    <Link key={e} to={`/dashboard/${e[0]}`}><h3>{e[0]} ({e.length - 1} channels)</h3>
-                    </Link>
-                    )
-                )
-            }
-
-            <CategoryList getSubs={async () => setSubInfo(await handleClick())}/>
             <button onClick={props.handleAuthClick}>Logout</button>
+
+            <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
+            <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={async () => setSubInfo(await handleClick())}/>} />
         </div>
     );
 }
