@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import jsonIDs from './topicIds.json';  // Used to convert between topicIDs and human-readable topics.
+import { Link } from 'react-router-dom';
 
 
 async function getSubs(pageToken) {
@@ -139,10 +140,13 @@ function prettifyCats(categories) {
 
     for (let key in categories) {
         if (categories.hasOwnProperty(key)) {  // TODO is this necessary?
+
             let cat = key === 'unfiled' ? ['unfiled'] : [jsonIDs[key]];  // Category name is in the front.
+
             for (let sub of categories[key]) {
                 cat.push(sub.snippet.title);
             }
+
             // Push the entire list of Channel titles to the output list.
             pretty.push(cat);
         }
@@ -183,26 +187,14 @@ function Dashboard(props) {
 
             <button onClick={props.handleAuthClick}>Logout</button>
 
-            <ul>
-                {   // Displays when prettyCats is up
-                    prettyInfo.length > 0 &&
+                {   prettyInfo.length > 0 && // Displays when prettyCats is up
                     
                     prettyInfo.map(e => (
-                        <li key={e[0]}><h3>{e[0]} ({e.length - 1} channels)</h3>
-                            <ol>
-                                {
-                                    e.map((i, idx) => {
-                                        if (idx >= 1) return (
-                                            <li key={i + idx}>{i}</li>
-                                        )
-                                        else return null
-                                    })
-                                }
-                            </ol>
-                        </li>)
+                        <Link to={`/dashboard/${e[0]}`}><h3>{e[0]} ({e.length - 1} channels)</h3>
+                        </Link>
+                        )
                     )
                 }
-            </ul>
         </div>
     );
 }

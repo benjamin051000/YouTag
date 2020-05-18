@@ -1,6 +1,7 @@
 import React from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
+import CategoryView from './CategoryView';
 import './App.css';
 import API_KEYS from './api_keys.json';
 
@@ -84,7 +85,9 @@ class App extends React.Component {
 					<Switch>
 						<Route exact path="/" render={(props) => <Login {...props} handleAuthClick={this.handleAuthClick}/>} />
 
-						<Route path="/dashboard" render={(props) => <Dashboard {...props} handleAuthClick={this.handleAuthClick}/>} />
+						<Route exact path="/dashboard" render={(props) => <Dashboard {...props} handleAuthClick={this.handleAuthClick}/>} />
+
+						<Route path="/dashboard/:id" component={CategoryView}/>
 					</Switch>
 
 					{
