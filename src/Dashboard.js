@@ -3,6 +3,7 @@ import jsonIDs from './topicIds.json';  // Used to convert between topicIDs and 
 import { Route, Link } from 'react-router-dom';
 
 import CategoryView from './CategoryView';
+import CategoryList from './CategoryList';
 
 
 async function getSubs(pageToken) {
@@ -174,11 +175,6 @@ function Dashboard(props) {
     return (
         <div>
             <h1>Dashboard</h1>
-            
-            <button onClick={async () => setSubInfo(await handleClick())}>Fetch and Display Categories</button>
-
-            <button onClick={props.handleAuthClick}>Logout</button>
-            
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
             
             {   subInfo.length > 0 && // Displays when prettyCats is up
@@ -189,6 +185,9 @@ function Dashboard(props) {
                     )
                 )
             }
+
+            <CategoryList getSubs={async () => setSubInfo(await handleClick())}/>
+            <button onClick={props.handleAuthClick}>Logout</button>
         </div>
     );
 }
