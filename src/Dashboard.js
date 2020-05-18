@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import jsonIDs from './topicIds.json';  // Used to convert between topicIDs and human-readable topics.
-import { Link } from 'react-router-dom';
+import { Route, Link } from 'react-router-dom';
+
+import CategoryView from './CategoryView';
 
 
 async function getSubs(pageToken) {
@@ -155,16 +157,11 @@ function prettifyCats(categories) {
 }
 
 
-async function handleFetch() {
+async function handleClick() {
     /* Handles the functions required to fetch the subscription information and the channel topic information at once. */
     let subInfo = await getAllSubs();
     subInfo = await getTopics(subInfo);
-    return subInfo;
-}
 
-
-function handleDisplay(subInfo) {
-    /* Handles category sorting and DOM rendering of Channels. */
     let sorted = sortSubs(subInfo);
     let pretty = prettifyCats(sorted);
     return pretty;
@@ -172,29 +169,26 @@ function handleDisplay(subInfo) {
 
 
 function Dashboard(props) {
-    /* Component declaration */
-
-    const [subInfo, updateSubInfo] = useState([]);
-    const [prettyInfo, setPretty] = useState([]);
+    const [subInfo, setSubInfo] = useState([]); // TODO eventually subInfo needs to be an object: {str : [subs]}
 
     return (
         <div>
             <h1>Dashboard</h1>
-
-            <button onClick={async () => updateSubInfo(await handleFetch())}>Fetch Subscription info</button>
-
-            <button onClick={() => setPretty(handleDisplay(subInfo))}>Sort and display data</button>
+            
+            <button onClick={async () => setSubInfo(await handleClick())}>Fetch and Display Categories</button>
 
             <button onClick={props.handleAuthClick}>Logout</button>
-
-                {   prettyInfo.length > 0 && // Displays when prettyCats is up
-                    
-                    prettyInfo.map(e => (
-                        <Link to={`/dashboard/${e[0]}`}><h3>{e[0]} ({e.length - 1} channels)</h3>
-                        </Link>
-                        )
+            
+            <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
+            
+            {   subInfo.length > 0 && // Displays when prettyCats is up
+                
+                subInfo.map(e => (
+                    <Link key={e} to={`/dashboard/${e[0]}`}><h3>{e[0]} ({e.length - 1} channels)</h3>
+                    </Link>
                     )
-                }
+                )
+            }
         </div>
     );
 }

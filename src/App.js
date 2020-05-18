@@ -1,9 +1,10 @@
 import React from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
-import CategoryView from './CategoryView';
 import './App.css';
 import API_KEYS from './api_keys.json';
+
+// import CategoryView from './CategoryView';
 
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
@@ -85,17 +86,12 @@ class App extends React.Component {
 					<Switch>
 						<Route exact path="/" render={(props) => <Login {...props} handleAuthClick={this.handleAuthClick}/>} />
 
-						<Route exact path="/dashboard" render={(props) => <Dashboard {...props} handleAuthClick={this.handleAuthClick}/>} />
+						<Route path="/dashboard" render={(props) => <Dashboard {...props} handleAuthClick={this.handleAuthClick}/>} />
 
-						<Route path="/dashboard/:id" component={CategoryView}/>
 					</Switch>
 
-					{
-						this.state.isSignedIn && <Redirect to='/dashboard'/>
-					}
-					{
-						!this.state.isSignedIn && <Redirect to='/' />
-					}
+					{this.state.isSignedIn && <Redirect to='/dashboard'/>}
+					{!this.state.isSignedIn && <Redirect to='/' />}
 				</div>
 			</Router>
 		)

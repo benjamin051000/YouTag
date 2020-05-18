@@ -1,9 +1,19 @@
 import React from 'react';
 
-function CategoryView({ match }) {
-    console.log(match);
-    return (
-        <h3>{match.params.id}</h3>
+function CategoryView({ match, subInfo }) {
+
+    console.log('CategoryView subInfo:', subInfo);
+
+    let subs = subInfo.find((e) => e[0] === match.params.id)
+
+    return ( 
+        <div>
+        {
+            subs.map(e =>
+                (<p>{e}</p>)
+            )
+        }
+        </div>
     );
 }
 
