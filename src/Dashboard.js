@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import jsonIDs from './topicIds.json';  // Used to convert between topicIDs and human-readable topics.
-import { Route, Link } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 import CategoryView from './CategoryView';
 import CategoryList from './CategoryList';
@@ -57,7 +57,7 @@ async function getTopics(subInfo) {
     for (let i = 0; i < subInfo.length; i += 50) {
 
         let idlist = channelIDs.slice(i, i + 50).join();  // Default delimiter is a comma. slice()  handles out of bounds: Returns up until the end. Slice does not include i+50.
-        console.log(`Fetching topicDetails for subInfo[${i}-${i + 50}]...`);
+        console.log(`Fetching topicDetails for subInfo[${i}-${i + 49}]...`);
 
         let response = await window.gapi.client.youtube.channels.list({
             'part': 'topicDetails',
@@ -109,15 +109,24 @@ function sortSubs(subInfo) {
             // Iterate through each topic.
             for (let topic of sub.topicDetails.topicDetails.topicIds) {
 
+                let fTopic;
+                // Change the topic from topicID to English. Use ftopic as dictionary key.
+                try {
+                    fTopic = jsonIDs[topic];
+                }
+                catch (e) {
+                    fTopic = 'unfiled';
+                }
+
                 // If the key-val pair already exists, push it if it hasn't been pushed already.
-                if (categories[topic]) {
+                if (categories[fTopic]) {
                     /* Check if the element is already here. This is necessary because some topicID lists for channels include the same topicID twice. */
-                    if (!categories[topic].find(e => e === sub))
-                        categories[topic].push(sub);
+                    if (!categories[fTopic].find(e => e === sub))
+                        categories[fTopic].push(sub);
                 }
                 else {
                     // Otherwise, create a new array starting with this subscription.
-                    categories[topic] = [sub];
+                    categories[fTopic] = [sub];
                 }
             }
         }
@@ -132,29 +141,8 @@ function sortSubs(subInfo) {
         }
     }
 
-    console.log('Resulting categories:', categories);
+    console.log('Channels sorted by topic:', categories);
     return categories;
-}
-
-
-function prettifyCats(categories) {
-    /* Format channel info to be rendered in the DOM. */
-    let pretty = [];
-
-    for (let key in categories) {
-        if (categories.hasOwnProperty(key)) {  // TODO is this necessary?
-
-            let cat = key === 'unfiled' ? ['unfiled'] : [jsonIDs[key]];  // Category name is in the front.
-
-            for (let sub of categories[key]) {
-                cat.push(sub.snippet.title);
-            }
-
-            // Push the entire list of Channel titles to the output list.
-            pretty.push(cat);
-        }
-    }
-    return pretty;
 }
 
 
@@ -164,13 +152,15 @@ async function handleClick() {
     subInfo = await getTopics(subInfo);
 
     let sorted = sortSubs(subInfo);
-    let pretty = prettifyCats(sorted);
-    return pretty;
+    // let pretty = prettifyCats(sorted);
+    return sorted;
 }
 
 
 function Dashboard(props) {
-    const [subInfo, setSubInfo] = useState([]); // TODO eventually subInfo needs to be an object: {str : [subs]}
+    const [subInfo, setSubInfo] = useState({});
+
+    const getSubs = async () => setSubInfo(await handleClick());
 
     return (
         <div>
@@ -178,7 +168,7 @@ function Dashboard(props) {
             <button onClick={props.handleAuthClick}>Logout</button>
 
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
-            <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={async () => setSubInfo(await handleClick())}/>} />
+            <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={getSubs}/>} />
         </div>
     );
 }

@@ -3,18 +3,28 @@ import { Link } from 'react-router-dom';
 
 
 function CategoryList(props) {
+    /* Generates the List of links of each category.
+       Clicking a link redirects to a CategoryView for
+       that topic. 
+    */
+
+    /* subInfo contains following structure: 
+        { "topicID" : [{subscription}, {subscription}, {...}] } */
+    let subInfo = props.subInfo;
+
     return (
         <div>
         <button onClick={props.getSubs}>Fetch and Display Categories</button>
 
-        {   props.subInfo.length > 0 && // Displays when prettyCats is up
-                
-            props.subInfo.map(e => (
-                <Link key={e} to={`/dashboard/${e[0]}`}><h3>{e[0]} ({e.length - 1} channels)</h3>
-                </Link>
-                )
-            )
-        }
+            {
+                Object.keys(subInfo).map((topic, index) => 
+                    (
+                        <Link to={`/dashboard/${topic}`} key={topic}>
+                            <h3>{topic} ({subInfo[topic].length} channels)</h3>
+                        </Link>
+                    ))
+            }
+        
         </div>
     );
 }
