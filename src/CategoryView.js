@@ -47,37 +47,53 @@ function timeSinceUploaded(video) {
     const now = Date.now();
 
     let elapsed = now - publishedAt;
+
+    // Must convert elapsed to a Date object first
+    // let seconds = elapsed.getSeconds();
+    // let minutes = elapsed.getMinutes();
+    // let hours = elapsed.getHours();
+    // let days = elapsed.getDay();
+    // // let weeks = elapsed.getWeek();
+    // let months = elapsed.getMonth();
+    // let years = elapsed.getFullYear();
     
     // Strip milliseconds
     elapsed /= 1000;
-
     let seconds = Math.round(elapsed % 60);
     // Strip seconds
     elapsed /= 60;
-    
     // Etc. for others
     let minutes = Math.round(elapsed % 60);
     elapsed /= 60;
-
     let hours = Math.round(elapsed % 24);
     elapsed /= 24;
-
     let days = Math.round(elapsed % 7);
     elapsed /= 7;
-
     let weeks = Math.round(elapsed % 4);
     elapsed /= 4;
-
     let months = Math.round(elapsed % 12);
     elapsed /= 12;
-
     let years = Math.round(elapsed);
 
     let output;
 
-    output = `${years}y ${months}mo ${weeks}w ${days}d ${hours}hr ${minutes}m ${seconds}s ago`;
+    // Format output
+    if(years > 0)
+        output = `${years}y ${months}m`;
+    else if(months > 0)
+        output = `${months}mo`;
+    else if(weeks > 0)
+        output = `${weeks}w`;
+    else if(days > 0)
+        output = `${days}d`;
+    else if(hours > 0)
+        output = `${hours}h`;
+    else
+        output = `${minutes}m ${seconds}s`;
 
-    console.log(output);
+    output += ' ago';
+    // output = `${years}y ${months}mo ${weeks}w ${days}d ${hours}hr ${minutes}m ${seconds}s ago`;
+
     return output;
 }
 
