@@ -8,57 +8,42 @@ async function getVideos(channels) {
     console.log('Getting videos from the following channels:', channels);
 
     // Extract playlist IDs from the channels provided.
-    let playlistIDs = channels.map(channel => channel.topicDetails.contentDetails.relatedPlaylists.uploads);
+    const playlistIDs = channels.map(
+        channel => channel.topicDetails.contentDetails.relatedPlaylists.uploads
+    );
 
     console.log('Getting playlists:', playlistIDs);
 
+    // Use Promise.all to send all queries at the same time.
+    const getVideosFromID = (playlistID) => window.gapi.client.youtube.playlistItems.list({
+        "part": "snippet",
+        // "maxResults": 50,
+        "playlistId": playlistID
+    });
+    const promises = playlistIDs.map(id => getVideosFromID(id));
+    const response = await Promise.all(promises);
+
     let videos = [];
-
-    // Make the requests in batches of 50.
-    // for (let i=0; i < playlistIDs.length; i += 50) {
-    //     let batch = playlistIDs.slice(i, i+50).join(); // Default delimiter is a comma. slice()  handles out of bounds: Returns up until the end. Slice does not include i+50.
-
-    //     console.log(`Fetching videos from playlists ${i}-${i + 49}...`);
-
-    //     console.log('batch:', batch);
-
-    //     let response = await window.gapi.client.youtube.playlistItems.list({
-    //         "part": "snippet",
-    //         "playlistId": batch // ERROR: playlistId does not support comma-separated values.
-    //     });
-
-    //     let result = response.result;
-    //     console.log('Resulting video snippets:', result);
-    // }
-
-    for(let id of playlistIDs) {
-        let response = await window.gapi.client.youtube.playlistItems.list({
-            "part": "snippet",
-            // "maxResults": 50,
-            "playlistId": id
-        });
-        let result = response.result;
-        
-        videos = videos.concat(result.items);
+    for(let e of response) {
+        videos.push(...e.result.items);
     }
 
     // Sort the videos based on date published, newest first.
     videos.sort((a, b) => {
-        let da = new Date(a.snippet.publishedAt);
-        let db = new Date(b.snippet.publishedAt);
+        const da = new Date(a.snippet.publishedAt);
+        const db = new Date(b.snippet.publishedAt);
         return db - da; // Returns either a positive, negative, or zero.
     });
 
     console.log('Sorted videos:', videos);
 
     return videos;
-}
+} // end of getVideos
 
 function CategoryView({ match, subInfo }) {
     const [vids, setVids] = useState([]);
     
     let subs = subInfo[match.params.id];
-    console.log(`CategoryView for ${match.params.id}:`, subs);
 
     return ( 
         <div>
@@ -82,20 +67,24 @@ function CategoryView({ match, subInfo }) {
             <h2><u>Videos</u></h2>
             <button onClick={async () => setVids(await getVideos(subInfo[match.params.id]))}>Get Videos</button>
             <br/>
+
+            <ol>
             { vids.length > 0 &&
+            
                 vids.map(video => {
-                    let videoLink = `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`
+                    const videoLink = `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`;
+                    const snippet = video.snippet;
                     return (
-                        <>
-                        <a href={videoLink} target="_blank" rel="noopener noreferrer">
-                            <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title}/>
-                            [{video.snippet.channelTitle}] {video.snippet.title}
+                        <li key={snippet.resourceId.videoId}>
+                            <a href={videoLink} target="_blank" rel="noopener noreferrer">
+                                <img src={snippet.thumbnails.default.url} alt={snippet.title}/>
+                                [{snippet.channelTitle}] {snippet.title}
                             </a>
-                        <br/>
-                        </>
+                        </li>
                     );
                 })
             }
+            </ol>
 
         </div>
     );
