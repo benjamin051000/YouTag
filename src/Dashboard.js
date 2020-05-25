@@ -60,7 +60,7 @@ async function getTopics(subInfo) {
         console.log(`Fetching topicDetails for subInfo[${i}-${i + 49}]...`);
 
         let response = await window.gapi.client.youtube.channels.list({
-            'part': 'topicDetails',
+            'part': 'topicDetails, contentDetails',
             'id': idlist
         });
 
@@ -79,7 +79,7 @@ async function getTopics(subInfo) {
 
         for (let j = 0; j < channelInfo.length; j++) {
             if (channelInfo[j].id === channelId) {
-                subInfo[i].topicDetails = channelInfo[j];
+                subInfo[i].topicDetails = channelInfo[j]; // TODO consider just using .push to remove a layer here
                 break; // Move on to next iteration of dsubs
             }
         }
@@ -91,7 +91,7 @@ async function getTopics(subInfo) {
             console.log('This channel does not have any topics defined:', channel);
     }
 
-    console.log('New subInfo with topicDetails:', subInfo);
+    console.log('New subInfo with topicDetails and upload links:', subInfo);
     return subInfo;
 }
 
@@ -168,6 +168,7 @@ function Dashboard(props) {
             <button onClick={props.handleAuthClick}>Logout</button>
 
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
+            
             <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={getSubs}/>} />
         </div>
     );
