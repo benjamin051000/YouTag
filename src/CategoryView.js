@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 async function getVideos(channels) {
@@ -76,7 +76,6 @@ function timeSinceUploaded(video) {
     let years = Math.round(elapsed);
 
     let output;
-
     // Format output
     if(years > 0)
         output = `${years}y ${months}m`;
@@ -100,6 +99,14 @@ function timeSinceUploaded(video) {
 function CategoryView({ match, subInfo }) {
     const [vids, setVids] = useState([]);
     
+    // Runs when component mounts.
+    useEffect(() => {
+        const handleMount = async () => {
+            setVids(await getVideos(subInfo[match.params.id]));
+        }
+        handleMount();
+    }, []);
+
     let subs = subInfo[match.params.id];
 
     return ( 
@@ -119,12 +126,9 @@ function CategoryView({ match, subInfo }) {
                 </li>))
             }
             </ul>
-
             <br/>
+
             <h2><u>Videos</u></h2>
-            <button onClick={async () => setVids(await getVideos(subInfo[match.params.id]))}>Get Videos</button>
-            <br/>
-
             <ol>
             { vids.length > 0 &&
             
