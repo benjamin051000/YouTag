@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 async function getVideos(channels) {
-    /* Returns a list of video snippets for the given channels. */
+    /* Returns a list of video snippets for the given channels.
+    Returns an array of playListItemResponse objects. */
 
     console.log('Getting videos from the following channels:', channels);
 
     // Extract playlist IDs from the channels provided.
     let playlistIDs = channels.map(channel => channel.topicDetails.contentDetails.relatedPlaylists.uploads);
 
-    console.log(playlistIDs);
+    console.log('Getting playlists:', playlistIDs);
 
     let videos = [];
 
@@ -33,15 +34,28 @@ async function getVideos(channels) {
     for(let id of playlistIDs) {
         let response = await window.gapi.client.youtube.playlistItems.list({
             "part": "snippet",
-            "maxResults": 50,
-            "playlistId": "UUXuqSBlHAE6Xw-yeJA0Tunw"
+            // "maxResults": 50,
+            "playlistId": id
         });
         let result = response.result;
-        console.log(result);
+        
+        videos = videos.concat(result.items);
     }
+
+    // Sort the videos based on date published, newest first.
+    videos.sort((a, b) => {
+        let da = new Date(a.snippet.publishedAt);
+        let db = new Date(b.snippet.publishedAt);
+        return db - da; // Returns either a positive, negative, or zero.
+    });
+
+    console.log('Sorted videos:', videos);
+
+    return videos;
 }
 
 function CategoryView({ match, subInfo }) {
+    const [vids, setVids] = useState([]);
     
     let subs = subInfo[match.params.id];
     console.log(`CategoryView for ${match.params.id}:`, subs);
@@ -54,7 +68,7 @@ function CategoryView({ match, subInfo }) {
             <h2><u>{match.params.id}</u></h2>
             <ul>
             {
-                subs.map(sub =>
+                subs.map(sub => // TODO we changed what's stored in vids, apply that change here I guess. :(
                 (<li key={sub.snippet.title}>
                     <a href={`https://www.youtube.com/channel/${sub.snippet.resourceId.channelId}`} target="_blank" rel="noopener noreferrer">
                         {sub.snippet.title} {' '}
@@ -66,7 +80,22 @@ function CategoryView({ match, subInfo }) {
 
             <br/>
             <h2><u>Videos</u></h2>
-            <button onClick={async () => await getVideos(subInfo[match.params.id])}>Get Videos</button>
+            <button onClick={async () => setVids(await getVideos(subInfo[match.params.id]))}>Get Videos</button>
+            <br/>
+            { vids.length > 0 &&
+                vids.map(video => {
+                    let videoLink = `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`
+                    return (
+                        <>
+                        <a href={videoLink} target="_blank" rel="noopener noreferrer">
+                            <img src={video.snippet.thumbnails.default.url} alt={video.snippet.title}/>
+                            [{video.snippet.channelTitle}] {video.snippet.title}
+                            </a>
+                        <br/>
+                        </>
+                    );
+                })
+            }
 
         </div>
     );
