@@ -40,6 +40,47 @@ async function getVideos(channels) {
     return videos;
 } // end of getVideos
 
+function timeSinceUploaded(video) {
+    /* Returns a string contatining the time since
+    the video was uploaded. */
+    const publishedAt = new Date(video.snippet.publishedAt);
+    const now = Date.now();
+
+    let elapsed = now - publishedAt;
+    
+    // Strip milliseconds
+    elapsed /= 1000;
+
+    let seconds = Math.round(elapsed % 60);
+    // Strip seconds
+    elapsed /= 60;
+    
+    // Etc. for others
+    let minutes = Math.round(elapsed % 60);
+    elapsed /= 60;
+
+    let hours = Math.round(elapsed % 24);
+    elapsed /= 24;
+
+    let days = Math.round(elapsed % 7);
+    elapsed /= 7;
+
+    let weeks = Math.round(elapsed % 4);
+    elapsed /= 4;
+
+    let months = Math.round(elapsed % 12);
+    elapsed /= 12;
+
+    let years = Math.round(elapsed);
+
+    let output;
+
+    output = `${years}y ${months}mo ${weeks}w ${days}d ${hours}hr ${minutes}m ${seconds}s ago`;
+
+    console.log(output);
+    return output;
+}
+
 function CategoryView({ match, subInfo }) {
     const [vids, setVids] = useState([]);
     
@@ -80,6 +121,8 @@ function CategoryView({ match, subInfo }) {
                                 <img src={snippet.thumbnails.default.url} alt={snippet.title}/>
                                 [{snippet.channelTitle}] {snippet.title}
                             </a>
+                            <br/>
+                            {timeSinceUploaded(video)}
                         </li>
                     );
                 })
