@@ -4,8 +4,6 @@ import Dashboard from './Dashboard';
 import './App.css';
 import API_KEYS from './api_keys.json';
 
-// import CategoryView from './CategoryView';
-
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
 const SCOPE = 'https://www.googleapis.com/auth/youtube.force-ssl';

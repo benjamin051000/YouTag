@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import Button from 'react-bootstrap/Button';
 
 function CategoryList(props) {
     /* Generates the List of links of each category.
@@ -14,7 +15,7 @@ function CategoryList(props) {
 
     return (
         <div>
-        <button onClick={props.getSubs}>Fetch and Display Categories</button>
+        <Button size="sm" onClick={props.getSubs}>Fetch and Display Categories</Button>
 
             {
                 Object.keys(subInfo).map((topic, index) => 

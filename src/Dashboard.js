@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import jsonIDs from './topicIds.json';  // Used to convert between topicIDs and human-readable topics.
 import { Route } from 'react-router-dom';
 
+import Button from 'react-bootstrap/Button';
+
 import CategoryView from './CategoryView';
 import CategoryList from './CategoryList';
 
@@ -70,6 +72,24 @@ async function getTopics(subInfo) {
 
         channelInfo = channelInfo.concat(result.items);
     }
+
+    // // Batch the channelIDs into groups of 50.
+    // let channelIDBatches = [];
+    // for (let i = 0; i < subInfo.length; i+=50) {
+    //     channelIDBatches.push(channelIDs.slice(i, i+50).join());
+    // }
+
+    // const getTopicContentDetails = (id) => window.gapi.client.youtube.channels.list({
+    //     'part': 'topicDetails, contentDetails',
+    //     'id': id
+    // });
+    // const promises = channelIDBatches.map(id => getTopicContentDetails(id));
+    // const response = await Promise.all(promises);
+
+    // // let channelInfo = [];
+    // for(let e of response) {
+    //     channelInfo.push(...e.result.items);
+    // }
 
     console.log('Received channel info:', channelInfo);
 
@@ -165,7 +185,7 @@ function Dashboard(props) {
     return (
         <div>
             <h1>Dashboard</h1>
-            <button onClick={props.handleAuthClick}>Logout</button>
+            <Button variant="danger" size="sm" onClick={props.handleAuthClick}>Logout</Button>
 
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
             
