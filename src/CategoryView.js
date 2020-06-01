@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 async function getVideos(channels) {
     /* Returns a list of video snippets for the given channels.
@@ -118,17 +119,17 @@ function CategoryView({ match, subInfo }) {
                 <Button size="sm">Back to Topics</Button>
             </Link>
             <h2><u>{match.params.id}</u></h2>
-            <ul>
+            <ListGroup>
             {
                 subs.map(sub => // TODO we changed what's stored in vids, apply that change here I guess. :(
-                (<li key={sub.snippet.title}>
+                (<ListGroup.Item key={sub.snippet.title}>
                     <a href={`https://www.youtube.com/channel/${sub.snippet.resourceId.channelId}`} target="_blank" rel="noopener noreferrer">
                         {sub.snippet.title} {' '}
                         <img src={sub.snippet.thumbnails.default.url} alt={sub.snippet.title}/>
                     </a>
-                </li>))
+                </ListGroup.Item>))
             }
-            </ul>
+            </ListGroup>
             <br/>
 
             <h2><u>Videos</u></h2>

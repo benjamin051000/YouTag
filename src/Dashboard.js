@@ -190,22 +190,27 @@ function loadTestData() {
 }
 
 
+
 function Dashboard(props) {
     const [subInfo, setSubInfo] = useState({});
-
-    const getSubs = async () => setSubInfo(await handleClick());
+    const [isLoading, setLoading] = useState(false);
+ 
+    const getSubs = async () => {
+        setLoading(true);
+        setSubInfo(await handleClick());
+        setLoading(false);
+    };
 
     return (
         <div>
             <h1>Dashboard</h1>
-            <Button variant="danger" size="sm" onClick={props.handleAuthClick}>Logout</Button>
 
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
 
             {/* Button for loading test information. */}
             <Button variant="outline-warning" size="sm" onClick={() => setSubInfo(loadTestData())}>Load Test Data (Warning: Developers only)</Button>
 
-            <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={getSubs}/>} />
+            <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={getSubs} isLoading={isLoading}/>} />
 
 
         </div>

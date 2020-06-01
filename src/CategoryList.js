@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Spinner from 'react-bootstrap/Spinner';
 
 function CategoryList(props) {
     /* Generates the List of links of each category.
@@ -15,16 +17,22 @@ function CategoryList(props) {
 
     return (
         <div>
-        <Button size="sm" onClick={props.getSubs}>Fetch and Display Categories</Button>
+            <Button size="sm" onClick={props.getSubs} disabled={props.isLoading}>
+                {props.isLoading ? <><Spinner animation="border" size="sm"/> Fetching Categories...</> : <>Fetch and Display Categories</>} 
+            </Button>
 
+            <ListGroup>
             {
                 Object.keys(subInfo).map((topic, index) => 
                     (
-                        <Link to={`/dashboard/${topic}`} key={topic}>
-                            <h3>{topic} ({subInfo[topic].length} channels)</h3>
-                        </Link>
+                        <ListGroup.Item>
+                            <Link to={`/dashboard/${topic}`} key={topic}>
+                                <h3>{topic} ({subInfo[topic].length} channels)</h3>
+                            </Link>
+                        </ListGroup.Item>
                     ))
             }
+            </ListGroup>
         
         </div>
     );
