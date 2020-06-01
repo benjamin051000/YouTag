@@ -141,9 +141,9 @@ function CategoryView({ match, subInfo }) {
                     const snippet = video.snippet;
                     return (
                         <li key={snippet.resourceId.videoId}>
-                            <Card style={{width: '25%', left: '37.5%'}}>
+                            <Card style={{width: '50%', left: '25%'}}>
                                 <a href={videoLink} target="_blank" rel="noopener noreferrer">
-                                    <Card.Img variant="top" src={snippet.thumbnails.default.url}/>
+                                    <Card.Img variant="top" src={snippet.thumbnails.high.url}/>
                                 </a>
                                 <Card.Body>
                                     <a href={videoLink} target="_blank" rel="noopener noreferrer">
