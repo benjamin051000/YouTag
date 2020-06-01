@@ -7,6 +7,9 @@ import Button from 'react-bootstrap/Button';
 import CategoryView from './CategoryView';
 import CategoryList from './CategoryList';
 
+// For testing purposes
+import testSubInfo from './test_data/unsorted_sublist.json';
+
 
 async function getSubs(pageToken) {
     /* Fetch subscription list from the authenticated user in batches of 50. pageToken is optional. */
@@ -177,6 +180,16 @@ async function handleClick() {
 }
 
 
+function loadTestData() {
+    /* For testing purposes. This uses prerecorded test data (which may be out of date)
+    to reduce Google API requests. NOTE: You should click categories with few channels to
+    further reduce API calls. */
+    console.log('Test data loaded from file:', testSubInfo);
+    let sorted = sortSubs(testSubInfo);
+    return sorted;
+}
+
+
 function Dashboard(props) {
     const [subInfo, setSubInfo] = useState({});
 
@@ -188,8 +201,13 @@ function Dashboard(props) {
             <Button variant="danger" size="sm" onClick={props.handleAuthClick}>Logout</Button>
 
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
-            
+
+            {/* Button for loading test information. */}
+            <Button variant="outline-warning" size="sm" onClick={() => setSubInfo(loadTestData())}>Load Test Data (Warning: Developers only)</Button>
+
             <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={getSubs}/>} />
+
+
         </div>
     );
 }
