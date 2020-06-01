@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+
 async function getVideos(channels) {
     /* Returns a list of video snippets for the given channels.
     Returns an array of playListItemResponse objects. */
@@ -112,7 +115,7 @@ function CategoryView({ match, subInfo }) {
     return ( 
         <div>
             <Link to='/dashboard'>
-                <button>Back to Topics</button>
+                <Button size="sm">Back to Topics</Button>
             </Link>
             <h2><u>{match.params.id}</u></h2>
             <ul>
@@ -137,12 +140,22 @@ function CategoryView({ match, subInfo }) {
                     const snippet = video.snippet;
                     return (
                         <li key={snippet.resourceId.videoId}>
-                            <a href={videoLink} target="_blank" rel="noopener noreferrer">
-                                <img src={snippet.thumbnails.default.url} alt={snippet.title}/>
-                                [{snippet.channelTitle}] {snippet.title}
-                            </a>
-                            <br/>
-                            {timeSinceUploaded(video)}
+                            <Card style={{width: '25%', left: '37.5%'}}>
+                                <a href={videoLink} target="_blank" rel="noopener noreferrer">
+                                    <Card.Img variant="top" src={snippet.thumbnails.default.url}/>
+                                </a>
+                                <Card.Body>
+                                    <a href={videoLink} target="_blank" rel="noopener noreferrer">
+                                        <Card.Title>{snippet.title}</Card.Title>
+                                    </a>
+                                    <a href={`https://www.youtube.com/channel/${snippet.channelId}`} target="_blank" rel="noopener noreferrer">
+                                        <Card.Subtitle>{snippet.channelTitle}</Card.Subtitle>
+                                    </a>
+                                    <Card.Text>
+                                        {timeSinceUploaded(video)}
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
                         </li>
                     );
                 })
