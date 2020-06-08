@@ -1,7 +1,7 @@
 import React from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
-import './App.css';
+// import './App.css';
 import API_KEYS from './api_keys.json';
 
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';

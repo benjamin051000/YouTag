@@ -1,17 +1,22 @@
 import React from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function NavBar(props) {
+    const {pathname} = useLocation();
+
     return (
         <Navbar>
             <Navbar.Brand>YouTag</Navbar.Brand>
+
             <Button variant="outline-danger" size="sm" onClick={props.handleAuthClick}>Logout</Button>
 
-            <Link to='/dashboard'>
-                <Button size="sm">Back to Topics</Button>
-            </Link>
+            {pathname.startsWith('/dashboard/') &&
+                <Link to='/dashboard'>
+                    Back to Topics
+                </Link>
+            }
         </Navbar>
     );
 }

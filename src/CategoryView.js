@@ -6,6 +6,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Media from 'react-bootstrap/Media';
+import Image from 'react-bootstrap/Image';
 
 async function getVideos(channels) {
     /* Returns a list of video snippets for the given channels.
@@ -117,7 +118,7 @@ function CategoryView({ match, subInfo }) {
 
     return (
         <div>
-            <h2><u>{match.params.id}</u></h2>
+            <h1>{match.params.id}</h1>
             <Container>
                 <Row>
                     <Col>
@@ -127,7 +128,7 @@ function CategoryView({ match, subInfo }) {
                                     (<ListGroup.Item key={sub.snippet.title}>
                                         <a href={`https://www.youtube.com/channel/${sub.snippet.resourceId.channelId}`} target="_blank" rel="noopener noreferrer">
                                             <Media>
-                                                <img src={sub.snippet.thumbnails.default.url} alt={sub.snippet.title} />
+                                                <Image roundedCircle src={sub.snippet.thumbnails.default.url} alt={sub.snippet.title} />
                                                 <Media.Body>
                                                     {sub.snippet.title}
                                                 </Media.Body>

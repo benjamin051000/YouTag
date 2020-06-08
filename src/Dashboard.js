@@ -8,6 +8,7 @@ import CategoryView from './CategoryView';
 import CategoryList from './CategoryList';
 import NavBar from './NavBar';
 
+import styled from 'styled-components';
 
 // For testing purposes
 import testSubInfo from './test_data/unsorted_sublist.json';
@@ -191,12 +192,16 @@ function loadTestData() {
     return sorted;
 }
 
-
+const Style = styled.div`
+    .dashboard {
+        text-align: center;
+    }
+`;
 
 function Dashboard(props) {
     const [subInfo, setSubInfo] = useState({});
     const [isLoading, setLoading] = useState(false);
- 
+
     const getSubs = async () => {
         setLoading(true);
         setSubInfo(await handleClick());
@@ -204,20 +209,24 @@ function Dashboard(props) {
     };
 
     return (
-        <div>
-            <NavBar handleAuthClick={props.handleAuthClick} isSignedIn={props.isSignedIn}/>
+        <Style>
+            <div className='dashboard'>
+                <NavBar handleAuthClick={props.handleAuthClick} />
 
-            <h1>Dashboard</h1>
+                <Route path="/dashboard/:id" render={(props) =>
+                    <CategoryView {...props} subInfo={subInfo} />
+                } />
 
-            <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>
+                {/* Button for loading test information. */}
+                <Button variant="outline-warning" size="sm" onClick={() => setSubInfo(loadTestData())}>Load Test Data (Warning: Developers only)</Button>
 
-            {/* Button for loading test information. */}
-            <Button variant="outline-warning" size="sm" onClick={() => setSubInfo(loadTestData())}>Load Test Data (Warning: Developers only)</Button>
+                <Route exact path="/dashboard" render={(props) =>
+                    <CategoryList {...props} subInfo={subInfo} getSubs={getSubs} isLoading={isLoading} />
+                } />
 
-            <Route exact path="/dashboard" render={(props) => <CategoryList subInfo={subInfo} getSubs={getSubs} isLoading={isLoading}/>} />
 
-
-        </div>
+            </div>
+        </Style>
     );
 }
 
