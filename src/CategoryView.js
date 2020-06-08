@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
-import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Media from 'react-bootstrap/Media';
 
 async function getVideos(channels) {
     /* Returns a list of video snippets for the given channels.
@@ -28,7 +30,7 @@ async function getVideos(channels) {
     const response = await Promise.all(promises);
 
     let videos = [];
-    for(let e of response) {
+    for (let e of response) {
         videos.push(...e.result.items);
     }
 
@@ -60,7 +62,7 @@ function timeSinceUploaded(video) {
     // // let weeks = elapsed.getWeek();
     // let months = elapsed.getMonth();
     // let years = elapsed.getFullYear();
-    
+
     // Strip milliseconds
     elapsed /= 1000;
     let seconds = Math.round(elapsed % 60);
@@ -81,15 +83,15 @@ function timeSinceUploaded(video) {
 
     let output;
     // Format output
-    if(years > 0)
+    if (years > 0)
         output = `${years}y ${months}m`;
-    else if(months > 0)
+    else if (months > 0)
         output = `${months}mo`;
-    else if(weeks > 0)
+    else if (weeks > 0)
         output = `${weeks}w`;
-    else if(days > 0)
+    else if (days > 0)
         output = `${days}d`;
-    else if(hours > 0)
+    else if (hours > 0)
         output = `${hours}h`;
     else
         output = `${minutes}m ${seconds}s`;
@@ -102,7 +104,7 @@ function timeSinceUploaded(video) {
 
 function CategoryView({ match, subInfo }) {
     const [vids, setVids] = useState([]);
-    
+
     // Runs when component mounts.
     useEffect(() => {
         const handleMount = async () => {
@@ -113,56 +115,61 @@ function CategoryView({ match, subInfo }) {
 
     let subs = subInfo[match.params.id];
 
-    return ( 
+    return (
         <div>
-            <Link to='/dashboard'>
-                <Button size="sm">Back to Topics</Button>
-            </Link>
             <h2><u>{match.params.id}</u></h2>
-            <ListGroup>
-            {
-                subs.map(sub => // TODO we changed what's stored in vids, apply that change here I guess. :(
-                (<ListGroup.Item key={sub.snippet.title}>
-                    <a href={`https://www.youtube.com/channel/${sub.snippet.resourceId.channelId}`} target="_blank" rel="noopener noreferrer">
-                        {sub.snippet.title} {' '}
-                        <img src={sub.snippet.thumbnails.default.url} alt={sub.snippet.title}/>
-                    </a>
-                </ListGroup.Item>))
-            }
-            </ListGroup>
-            <br/>
+            <Container>
+                <Row>
+                    <Col>
+                        <ListGroup>
+                            {
+                                subs.map(sub => // TODO we changed what's stored in vids, apply that change here I guess. :(
+                                    (<ListGroup.Item key={sub.snippet.title}>
+                                        <a href={`https://www.youtube.com/channel/${sub.snippet.resourceId.channelId}`} target="_blank" rel="noopener noreferrer">
+                                            <Media>
+                                                <img src={sub.snippet.thumbnails.default.url} alt={sub.snippet.title} />
+                                                <Media.Body>
+                                                    {sub.snippet.title}
+                                                </Media.Body>
+                                            </Media>
+                                        </a>
+                                    </ListGroup.Item>))
+                            }
+                        </ListGroup>
+                    </Col>
+                    <Col>
+                        <ol>
+                            {vids.length > 0 &&
 
-            <h2><u>Videos</u></h2>
-            <ol>
-            { vids.length > 0 &&
-            
-                vids.map(video => {
-                    const videoLink = `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`;
-                    const snippet = video.snippet;
-                    return (
-                        <li key={snippet.resourceId.videoId}>
-                            <Card style={{width: '50%', left: '25%'}}>
-                                <a href={videoLink} target="_blank" rel="noopener noreferrer">
-                                    <Card.Img variant="top" src={snippet.thumbnails.high.url}/>
-                                </a>
-                                <Card.Body>
-                                    <a href={videoLink} target="_blank" rel="noopener noreferrer">
-                                        <Card.Title>{snippet.title}</Card.Title>
-                                    </a>
-                                    <a href={`https://www.youtube.com/channel/${snippet.channelId}`} target="_blank" rel="noopener noreferrer">
-                                        <Card.Subtitle>{snippet.channelTitle}</Card.Subtitle>
-                                    </a>
-                                    <Card.Text>
-                                        {timeSinceUploaded(video)}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </li>
-                    );
-                })
-            }
-            </ol>
-
+                                vids.map(video => {
+                                    const videoLink = `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`;
+                                    const snippet = video.snippet;
+                                    return (
+                                        <li key={snippet.resourceId.videoId}>
+                                            <Card>
+                                                <a href={videoLink} target="_blank" rel="noopener noreferrer">
+                                                    <Card.Img variant="top" src={snippet.thumbnails.high.url} />
+                                                </a>
+                                                <Card.Body>
+                                                    <a href={videoLink} target="_blank" rel="noopener noreferrer">
+                                                        <Card.Title>{snippet.title}</Card.Title>
+                                                    </a>
+                                                    <a href={`https://www.youtube.com/channel/${snippet.channelId}`} target="_blank" rel="noopener noreferrer">
+                                                        <Card.Subtitle>{snippet.channelTitle}</Card.Subtitle>
+                                                    </a>
+                                                    <Card.Text>
+                                                        {timeSinceUploaded(video)}
+                                                    </Card.Text>
+                                                </Card.Body>
+                                            </Card>
+                                        </li>
+                                    );
+                                })
+                            }
+                        </ol>
+                    </Col>
+                </Row>
+            </Container>
         </div>
     );
 }
