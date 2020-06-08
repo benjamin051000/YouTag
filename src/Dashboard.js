@@ -6,6 +6,8 @@ import Button from 'react-bootstrap/Button';
 
 import CategoryView from './CategoryView';
 import CategoryList from './CategoryList';
+import NavBar from './NavBar';
+
 
 // For testing purposes
 import testSubInfo from './test_data/unsorted_sublist.json';
@@ -203,6 +205,8 @@ function Dashboard(props) {
 
     return (
         <div>
+            <NavBar handleAuthClick={props.handleAuthClick} isSignedIn={props.isSignedIn}/>
+
             <h1>Dashboard</h1>
 
             <Route path="/dashboard/:id" render={(props) => <CategoryView {...props} subInfo={subInfo}/>}/>

@@ -3,7 +3,6 @@ import Login from './Login';
 import Dashboard from './Dashboard';
 import './App.css';
 import API_KEYS from './api_keys.json';
-import NavBar from './NavBar';
 
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
@@ -81,7 +80,6 @@ class App extends React.Component {
 	render() {
 		return (
 			<Router>
-				<NavBar handleAuthClick={this.handleAuthClick} isSignedIn={this.state.isSignedIn}/>
 				
 				<div className="App" ref={el => (this.instance = el)}>
 					<Switch>
