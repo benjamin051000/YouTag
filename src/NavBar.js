@@ -2,9 +2,6 @@ import React from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Image from 'react-bootstrap/Image';
-import Button from 'react-bootstrap/Button';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import NavItem from 'react-bootstrap/NavItem';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, useLocation } from 'react-router-dom';
 
