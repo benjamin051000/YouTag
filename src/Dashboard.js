@@ -208,14 +208,20 @@ function Dashboard(props) {
         setLoading(false);
     };
 
+    const profile = props.profile;
+
     return (
         <Style>
             <div className='dashboard'>
-                <NavBar handleAuthClick={props.handleAuthClick} />
+                <NavBar handleAuthClick={props.handleAuthClick} profile={props.profile}/>
 
                 <Route path="/dashboard/:id" render={(props) =>
                     <CategoryView {...props} subInfo={subInfo} />
                 } />
+
+                {
+                    profile && <h3>Welcome, {profile.getName()}</h3>
+                }
 
                 {/* Button for loading test information. */}
                 <Button variant="outline-warning" size="sm" onClick={() => setSubInfo(loadTestData())}>Load Test Data (Warning: Developers only)</Button>

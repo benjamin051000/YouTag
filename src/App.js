@@ -1,7 +1,6 @@
 import React from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
-// import './App.css';
 import API_KEYS from './api_keys.json';
 
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
@@ -14,7 +13,10 @@ class App extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {isSignedIn: false};
+		this.state = {
+			isSignedIn: false,
+			profile: null
+		};
 
 		this.GoogleAuth = null;
 		this.initClient = this.initClient.bind(this);
@@ -60,7 +62,18 @@ class App extends React.Component {
 
 		if (isAuthorized) {
 			console.log('You\'re signed in!');
-			this.setState({isSignedIn: true});
+
+			// https://developers.google.com/identity/sign-in/web/sign-in
+			
+			/* Get basic information from the user's Google info */
+			let profile = user.getBasicProfile();
+			
+			console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+			console.log('Name: ' + profile.getName());
+			console.log('Image URL: ' + profile.getImageUrl());
+			console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+			this.setState({isSignedIn: true, profile: profile});
 		}
 		else {
 			console.log('You are signed out.');
@@ -83,9 +96,13 @@ class App extends React.Component {
 				
 				<div className="App" ref={el => (this.instance = el)}>
 					<Switch>
-						<Route exact path="/" render={(props) => <Login {...props} handleAuthClick={this.handleAuthClick}/>} />
+						<Route exact path="/" render={(props) => 
+							<Login {...props} handleAuthClick={this.handleAuthClick}/>
+						} />
 
-						<Route path="/dashboard" render={(props) => <Dashboard {...props} handleAuthClick={this.handleAuthClick}/>} />
+						<Route path="/dashboard" render={(props) => 
+							<Dashboard {...props} handleAuthClick={this.handleAuthClick} profile={this.state.profile}/>
+						} />
 
 					</Switch>
 
