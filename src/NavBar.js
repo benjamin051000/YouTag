@@ -12,15 +12,17 @@ function NavBar(props) {
     const profilePic = profile.getImageUrl();
     const user_name = profile.getName();
 
-    return (
+        return (
         <Navbar>
             <Navbar.Brand>YouTag</Navbar.Brand>
             <Nav className="container-fluid">
+                
+                {pathname.startsWith('/dashboard/') && <Link to="/dashboard">Back to Topics</Link>}
 
                 <Nav.Item className="ml-auto">
                     <Dropdown alignRight>
                         <Dropdown.Toggle as={Nav.Link}>
-                            <Image src={profilePic} roundedCircle fluid alt="Google Profile Pic" width="40" height="40"/>
+                            <Image src={profilePic} roundedCircle alt="Google Profile Pic" width="40" height="40"/>
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu>
@@ -29,12 +31,6 @@ function NavBar(props) {
                         </Dropdown.Menu>
                     </Dropdown>                 
                 </Nav.Item>
-
-                {pathname.startsWith('/dashboard/') &&
-                    <Link to='/dashboard'>
-                        Back to Topics
-                    </Link>
-                }
             </Nav>
         </Navbar>
     );
