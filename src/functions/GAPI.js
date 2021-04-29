@@ -1,4 +1,4 @@
-import API_KEYS from './api_keys.json';
+import API_KEYS from '../api_keys.json';
 
 // Global variable for google OAuth info
 let googleAuth = null;

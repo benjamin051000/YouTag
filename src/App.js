@@ -3,7 +3,7 @@ import Login from './Login.js';
 import Dashboard from './Dashboard.js';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
-import GAPI from './GAPI.js';
+import GAPI from './functions/GAPI.js';
 
 export default function App() {
     const [state, setState] = useState({
