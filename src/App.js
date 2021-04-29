@@ -39,13 +39,17 @@ class App extends React.Component {
 
 		// Initialize gapi.client
 		window.gapi.client.init({
-			'apiKey': API_KEYS.apiKey,
-			'clientId': API_KEYS.clientId,
+			'apiKey': API_KEYS.web.apiKey,
+			'clientId': API_KEYS.web.client_id,
 			'discoveryDocs': [discoveryURL],
 			'scope': SCOPE
 		}).then(
 			() => {
 				this.GoogleAuth = window.gapi.auth2.getAuthInstance();
+
+				if(!this.GoogleAuth) {
+					console.error('ERROR: Google API did not sign in properly.');
+				}
 
 				// Listen for sign-in state changes, and update signin status.
 				this.GoogleAuth.isSignedIn.listen(this.setSigninStatus);
@@ -82,6 +86,10 @@ class App extends React.Component {
 	}
 
 	handleAuthClick() {
+		if(!this.GoogleAuth) {
+			alert("ERROR: Google API did not sign in properly.");
+			return;
+		}
 		if (this.GoogleAuth.isSignedIn.get()) {
 			this.GoogleAuth.signOut();
 		}
