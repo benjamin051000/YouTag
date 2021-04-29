@@ -24,3 +24,6 @@ yarn-error.log*
 
 # API keys hidden
 src/api_keys.json
+
+# testing folder hidden
+/src/test_data/
