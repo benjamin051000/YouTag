@@ -9,8 +9,8 @@ function NavBar(props) {
     const {pathname} = useLocation();
     
     const profile = props.profile;
-    const profilePic = profile.getImageUrl();
-    const user_name = profile.getName();
+    const profilePic = profile ? profile.getImageUrl() : "";
+    const user_name = profile ? profile.getName() : "Error";
 
         return (
         <Navbar>
