@@ -49,7 +49,7 @@ async function getAllSubs() {
         firstIteration = false;
     }
 
-    console.log('Subscription list:', subs);
+    console.log('[getAllSubs] Subscription list:', subs);
 
     return subs;
 }
@@ -74,7 +74,7 @@ async function getTopics(subInfo) {
 
         let result = response.result;
 
-        console.log('Resulting topicDetails:', result);
+        console.log('[getTopics] Resulting topicDetails:', result);
 
         channelInfo = channelInfo.concat(result.items);
     }
@@ -97,7 +97,7 @@ async function getTopics(subInfo) {
     //     channelInfo.push(...e.result.items);
     // }
 
-    console.log('Received channel info:', channelInfo);
+    console.log('[getTopics] Received channel info:', channelInfo);
 
     // For each dsub, add its topicDetails if they are defined for that channel.
     for (let i = 0; i < subInfo.length; i++) {
@@ -113,11 +113,11 @@ async function getTopics(subInfo) {
 
     // Alert if any subs do not have topicDetails assigned to them
     for (let channel of subInfo) {
-        if (!channel.topicDetails)
-            console.log('This channel does not have any topics defined:', channel);
+        if (!channel.topicDetails || Object.entries(channel.topicDetails) === 0)
+            console.error(`[getTopics] Channel "${channel.snippet.title}" does not have any topics defined:`, channel);
     }
 
-    console.log('New subInfo with topicDetails and upload links:', subInfo);
+    console.log('[getTopics] New subInfo with topicDetails and upload links:', subInfo);
     return subInfo;
 }
 
@@ -167,7 +167,7 @@ function sortSubs(subInfo) {
         }
     }
 
-    console.log('Channels sorted by topic:', categories);
+    console.log('[sortSubs] Channels sorted by topic:', categories);
     return categories;
 }
 
@@ -175,9 +175,11 @@ function sortSubs(subInfo) {
 async function handleClick() {
     /* Handles the functions required to fetch the subscription information and the channel topic information at once. */
     let subInfo = await getAllSubs();
-    subInfo = await getTopics(subInfo);
-
-    let sorted = sortSubs(subInfo);
+    
+    let subInfoWTopics = await getTopics(subInfo);
+    
+    let sorted = sortSubs(subInfoWTopics);
+    
     // let pretty = prettifyCats(sorted);
     return sorted;
 }
@@ -200,6 +202,7 @@ const Style = styled.div`
 
 function Dashboard(props) {
     const [subInfo, setSubInfo] = useState({});
+    // State for loading icon on Fetch Categories button
     const [isLoading, setLoading] = useState(false);
 
     const getSubs = async () => {
@@ -213,14 +216,14 @@ function Dashboard(props) {
     return (
         <Style>
             <div className='dashboard'>
-                <NavBar handleAuthClick={props.handleAuthClick} profile={props.profile}/>
+                <NavBar handleAuthClick={props.handleAuthClick} profile={props.profile} />
 
                 <Route path="/dashboard/:id" render={(props) =>
                     <CategoryView {...props} subInfo={subInfo} />
                 } />
 
                 {
-                    profile && <h3>Welcome, {profile.getName()}</h3>
+                    profile && <h3>Welcome, {profile.getName()}.</h3>
                 }
 
                 {/* Button for loading test information. */}
