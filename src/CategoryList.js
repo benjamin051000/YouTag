@@ -20,6 +20,7 @@ function CategoryList(props) {
             <Button size="sm" onClick={props.getSubs} disabled={props.isLoading}>
                 {props.isLoading ? <><Spinner animation="border" size="sm"/> Fetching Categories...</> : <>Fetch and Display Categories</>} 
             </Button>
+            {/* TODO move this to where the other button is? */}
 
             <ListGroup>
             {

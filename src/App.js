@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Login from './Login.js';
-import Dashboard from './Dashboard.js';
+import Dashboard from './views/Dashboard.js';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 
 import GAPI from './functions/GAPI.js';
